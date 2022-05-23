@@ -48,6 +48,11 @@ async function main() {
   );
   const networkOrg1 = await getNetwork(gatewayOrg1);
   const contractsOrg1 = await getContracts(networkOrg1);
+  const channel = networkOrg1.getChannel();
+  const peers = channel.getEndorsers();
+  for (const peer of peers) {
+    logger.info(`PERNAME: ${peer.name}`);
+  }
 
   app.locals[config.mspIdOrg1] = contractsOrg1;
 
