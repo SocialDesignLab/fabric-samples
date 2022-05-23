@@ -29,6 +29,7 @@ export type JobResult = {
 export type JobSummary = {
   jobId: string;
   transactionIds: string[];
+  jobInfo?: unknown;
   transactionPayload?: string;
   transactionError?: string;
 };
@@ -317,12 +318,43 @@ export const getJobSummary = async (
 
   const jobSummary: JobSummary = {
     jobId: job.id,
+    jobInfo: {
+      name: job.name,
+      mspid: job.data.mspid,
+      transactionArgs: job.data.transactionArgs,
+      failedReason: job.failedReason,
+    },
     transactionIds,
     transactionError,
     transactionPayload,
   };
 
   return jobSummary;
+};
+
+/**
+ * Gets a job summary
+ *
+ * This function is used for the jobs REST endpoint
+ */
+export const getJobsSummary = async (queue: Queue): Promise<JobSummary[]> => {
+  const jobs = await queue.getJobs([
+    'active',
+    'completed',
+    'delayed',
+    'failed',
+    'waiting',
+  ]);
+  logger.debug({ jobs }, 'Got all job');
+  const jobsSummary: JobSummary[] = [];
+  for (const job of jobs) {
+    if (job.id) {
+      const jobSum = await getJobSummary(queue, job.id);
+      jobsSummary.push(jobSum);
+    }
+  }
+
+  return jobsSummary;
 };
 
 /**

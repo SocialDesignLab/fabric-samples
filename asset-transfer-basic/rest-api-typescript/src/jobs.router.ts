@@ -5,7 +5,7 @@
 import { Queue } from 'bullmq';
 import express, { Request, Response } from 'express';
 import { getReasonPhrase, StatusCodes } from 'http-status-codes';
-import { getJobSummary, JobNotFoundError } from './jobs';
+import { getJobSummary, JobNotFoundError, getJobsSummary } from './jobs';
 import { logger } from './logger';
 
 const { INTERNAL_SERVER_ERROR, NOT_FOUND, OK } = StatusCodes;
@@ -24,6 +24,32 @@ jobsRouter.get('/:jobId', async (req: Request, res: Response) => {
     return res.status(OK).json(jobSummary);
   } catch (err) {
     logger.error({ err }, 'Error processing read request for job ID %s', jobId);
+
+    if (err instanceof JobNotFoundError) {
+      return res.status(NOT_FOUND).json({
+        status: getReasonPhrase(NOT_FOUND),
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    return res.status(INTERNAL_SERVER_ERROR).json({
+      status: getReasonPhrase(INTERNAL_SERVER_ERROR),
+      timestamp: new Date().toISOString(),
+    });
+  }
+});
+
+jobsRouter.get('/', async (req: Request, res: Response) => {
+  logger.debug('Read all jobs');
+
+  try {
+    const submitQueue = req.app.locals.jobq as Queue;
+
+    const jobsSummary = await getJobsSummary(submitQueue);
+
+    return res.status(OK).json(jobsSummary);
+  } catch (err) {
+    logger.error({ err }, 'Error processing read request for all job');
 
     if (err instanceof JobNotFoundError) {
       return res.status(NOT_FOUND).json({
