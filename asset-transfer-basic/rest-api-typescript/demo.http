@@ -16,6 +16,12 @@ GET {{baseUrl}}/ready HTTP/1.1
 
 GET {{baseUrl}}/live HTTP/1.1
 
+
+### Init initLedger
+
+POST {{apiUrl}}/assets/init HTTP/1.1
+X-Api-Key: {{api-key}}
+
 ### Get all assets
 
 GET {{apiUrl}}/assets HTTP/1.1
