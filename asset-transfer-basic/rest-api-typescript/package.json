@@ -61,7 +61,7 @@
     "start:dotenv": "node --require source-map-support/register --require dotenv/config ./dist",
     "start:dev": "node --require source-map-support/register --require dotenv/config ./dist | pino-pretty",
     "start:redis": "docker run -p 6379:6379 --name fabric-sample-redis -d redis --maxmemory-policy noeviction --requirepass \"${REDIS_PASSWORD}\"",
-    "watch:debug": "nodemon --inspect=5858 -e ts --exec node -r ts-node/register --require source-map-support/register --require dotenv/config ./src/index.ts | pino-pretty",
+    "watch:debug": "NODE_ENV=development nodemon --inspect=5858 -e ts --exec node -r ts-node/register --require source-map-support/register --require dotenv/config ./src/index.ts | pino-pretty",
     "test": "jest"
   },
   "author": "Hyperledger",
