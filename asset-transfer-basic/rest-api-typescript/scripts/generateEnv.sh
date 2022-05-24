@@ -6,7 +6,7 @@
 
 ${AS_LOCAL_HOST:=true}
 
-: "${TEST_NETWORK_HOME:=../..}"
+: "${TEST_NETWORK_HOME:=../../test-network}"
 : "${CONNECTION_PROFILE_FILE_ORG1:=${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/connection-org1.json}"
 : "${CERTIFICATE_FILE_ORG1:=${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/*}"
 : "${PRIVATE_KEY_FILE_ORG1:=${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/keystore/*}"

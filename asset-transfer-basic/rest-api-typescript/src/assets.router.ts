@@ -33,6 +33,41 @@ const { ACCEPTED, BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, OK } =
 
 export const assetsRouter = express.Router();
 
+assetsRouter.post(
+  '/init',
+  async (req: Request, res: Response) => {
+    logger.debug('Init Ledger');
+
+    const mspId = req.user as string;
+
+    try {
+      const submitQueue = req.app.locals.jobq as Queue;
+      const jobId = await addSubmitTransactionJob(
+        submitQueue,
+        mspId,
+        'InitLedger',
+      );
+
+      return res.status(ACCEPTED).json({
+        status: getReasonPhrase(ACCEPTED),
+        jobId: jobId,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (err) {
+      logger.error(
+        { err },
+        'Error processing init ledger',
+      );
+
+      return res.status(INTERNAL_SERVER_ERROR).json({
+        status: getReasonPhrase(INTERNAL_SERVER_ERROR),
+        timestamp: new Date().toISOString(),
+      });
+    }
+  }
+);
+
+
 assetsRouter.get('/', async (req: Request, res: Response) => {
   logger.debug('Get all assets request received');
   try {
