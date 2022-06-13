@@ -380,6 +380,28 @@ function networkRestart() {
   fi
 }
 
+function networkStop() {
+  COMPOSE_BASE_FILES="-f compose/${COMPOSE_FILE_BASE} -f compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_BASE}"
+  COMPOSE_COUCH_FILES="-f compose/${COMPOSE_FILE_COUCH} -f compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_COUCH}"
+  COMPOSE_CA_FILES="-f compose/${COMPOSE_FILE_CA} -f compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_CA}"
+  COMPOSE_FILES="${COMPOSE_BASE_FILES} ${COMPOSE_COUCH_FILES} ${COMPOSE_CA_FILES}"
+
+  # stop org3 containers also in addition to org1 and org2, in case we were running sample to add org3
+  COMPOSE_ORG3_BASE_FILES="-f addOrg3/compose/${COMPOSE_FILE_ORG3_BASE} -f addOrg3/compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_ORG3_BASE}"
+  COMPOSE_ORG3_COUCH_FILES="-f addOrg3/compose/${COMPOSE_FILE_ORG3_COUCH} -f addOrg3/compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_ORG3_COUCH}"
+  COMPOSE_ORG3_CA_FILES="-f addOrg3/compose/${COMPOSE_FILE_ORG3_CA} -f addOrg3/compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_ORG3_CA}"
+  COMPOSE_ORG3_FILES="${COMPOSE_ORG3_BASE_FILES} ${COMPOSE_ORG3_COUCH_FILES} ${COMPOSE_ORG3_CA_FILES}"
+
+  if [ "${CONTAINER_CLI}" == "docker" ]; then
+    DOCKER_SOCK=$DOCKER_SOCK ${CONTAINER_CLI_COMPOSE} ${COMPOSE_FILES} ${COMPOSE_ORG3_FILES} stop
+  elif [ "${CONTAINER_CLI}" == "podman" ]; then
+    ${CONTAINER_CLI_COMPOSE} ${COMPOSE_FILES} ${COMPOSE_ORG3_FILES} stop
+  else
+    fatalln "Container CLI  ${CONTAINER_CLI} not supported"
+  fi
+}
+
+
 # Using crpto vs CA. default is cryptogen
 CRYPTO="cryptogen"
 # timeout duration - the duration the CLI should wait for a response from
@@ -546,6 +568,9 @@ elif [ "$MODE" == "restart" ]; then
   # networkDown
   # networkUp
   networkRestart
+elif [ "$MODE" == "stop" ]; then
+  infoln "Stopping network"
+  networkStop
 elif [ "$MODE" == "deployCC" ]; then
   infoln "deploying chaincode on channel '${CHANNEL_NAME}'"
   deployCC
