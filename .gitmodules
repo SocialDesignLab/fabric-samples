@@ -1,0 +1,3 @@
+[submodule "AMBS"]
+	path = AMBS
+	url = https://github.com/SocialDesignLab/AMBS.git
